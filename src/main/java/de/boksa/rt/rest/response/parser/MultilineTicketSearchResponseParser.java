@@ -82,7 +82,11 @@ public final class MultilineTicketSearchResponseParser implements TicketSearchRe
 		List<RTTicket> result = new LinkedList<RTTicket>();
 				
 		for (Map<String,String> ticketData : resultData) {
-			result.add(MultilineTicketSearchResponseParser.processTicketData(ticketData));
+			RTTicket rtTicket= MultilineTicketSearchResponseParser.processTicketData(ticketData);
+
+				if(rtTicket.getId() != null)
+					result.add(rtTicket);
+
 		}
 		
 		return result;
@@ -94,8 +98,10 @@ public final class MultilineTicketSearchResponseParser implements TicketSearchRe
 		FieldProcessor fieldProcessor = null;
 		
 		for (Entry<String,String> e : ticketData.entrySet()) {
-			fieldProcessor = FieldProcessorRegistry.getInstance().getTicketFieldProcessor(ticket, e.getKey());
-			fieldProcessor.process(ticket, e.getKey(), e.getValue());
+			if(e.getKey() != null) {
+				fieldProcessor = FieldProcessorRegistry.getInstance().getTicketFieldProcessor(ticket, e.getKey());
+				fieldProcessor.process(ticket, e.getKey(), e.getValue());
+			}
 		}
 		
 		return ticket;
