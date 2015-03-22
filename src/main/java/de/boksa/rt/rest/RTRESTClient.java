@@ -49,7 +49,7 @@ public class RTRESTClient {
 		}
 	}
 	
-	private static final Pattern PATTERN_RESPONSE_BODY = Pattern.compile("^(.*) (\\d+) (.*)\n((.*\n)*)", Pattern.MULTILINE);
+	private static final Pattern PATTERN_RESPONSE_BODY = Pattern.compile("^(.*) (\\d+) (.*)\n((.*\n)*+)", Pattern.MULTILINE);
 		
 	private String restInterfaceBaseURL;
 	private String username;
