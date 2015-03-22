@@ -106,6 +106,13 @@ public class RTRESTClient {
 		return this.getResponse("search/ticket", params);
 	}
 
+	public RTRESTResponse updateTicket(String ticketId, String content) throws IOException {
+		List<NameValuePair> params= new ArrayList();
+		params.add(new BasicNameValuePair("content", content));
+
+		return this.getResponse("ticket/"+ ticketId +"/edit", params);
+	}
+
 	private RTRESTResponse getResponse(String url) throws IOException {
 		return this.getResponse(url, new ArrayList<NameValuePair>());
 	}

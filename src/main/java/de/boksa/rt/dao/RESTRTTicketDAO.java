@@ -79,6 +79,33 @@ public class RESTRTTicketDAO implements RTTicketDAO {
 			throw new UnsupportedOperationException("Could not create parser for response format.");
 		}
 	}
+
+	@Override
+	public boolean resolveByTicketId(long ticketId) throws Exception {
+		String content= "Status: resolved\n";
+		return(this.updateByTicketId(ticketId, content));
+	}
+
+	@Override
+	public boolean updateByTicketId(long ticketId, String content) throws Exception {
+		client.login();
+		RTRESTResponse response = client.updateTicket(Long.toString(ticketId), content);
+		client.logout();
+		TicketSearchResponseParser parser = MultilineTicketSearchResponseParser.getInstance();
+
+		if (parser != null) {
+			if (response.getStatusCode() == 200l) {
+				return true;
+				//return parser.parseTicketSearchResponse(response);
+			} else if (response.getStatusCode() == 401l) {
+				throw new CredentialException(response.getStatusMessage());
+			} else {
+				throw new IOException(String.format("Server returned REST-response code %s (%s)", response.getStatusCode(), response.getStatusMessage()));
+			}
+		} else {
+			throw new UnsupportedOperationException("Could not create parser for response format.");
+		}
+	}
 	
 	// getter and setter methods...
 	public RTRESTClient getClient() {

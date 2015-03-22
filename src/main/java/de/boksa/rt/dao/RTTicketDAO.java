@@ -27,5 +27,7 @@ public interface RTTicketDAO {
 	public List<RTTicket> findByQuery(String query, String orderby) throws Exception;
 	public List<RTTicket> findByQuery(String query, TicketSearchResponseFormat format) throws Exception;
 	public List<RTTicket> findByQuery(String query, String orderby, TicketSearchResponseFormat format) throws Exception;
-	
+	public boolean resolveByTicketId(long ticketId) throws Exception;
+	public boolean updateByTicketId(long ticketId, String content) throws Exception;
+
 }
