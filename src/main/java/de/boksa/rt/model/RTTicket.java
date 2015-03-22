@@ -24,6 +24,10 @@ public class RTTicket implements RTCustomFieldObject {
 	private Long id;
 	private String subject;
 	private Long timeWorked;
+	private String requestors;
+	private String owner;
+	private String creator;
+	private String status;
 	private Map<String,RTCustomField> customFields;
 	
 	public RTTicket() {
@@ -50,7 +54,33 @@ public class RTTicket implements RTCustomFieldObject {
 	public void setTimeWorked(Long timeWorked) {
 		this.timeWorked = timeWorked;
 	}
-	public Map<String, RTCustomField> getCustomFields() {
+	public String getRequestors() {
+		return requestors;
+	}
+	public void setRequestors(String requestors) {
+		this.requestors = requestors;
+	}
+	public String getOwner() {
+		return owner;
+	}
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+	public String getCreator() {
+		return creator;
+	}
+
+	public void setCreator(String creator) {
+		this.creator = creator;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+    public Map<String, RTCustomField> getCustomFields() {
 		return customFields;
 	}
 	public void setCustomFields(Map<String, RTCustomField> customFields) {
