@@ -120,10 +120,10 @@ public class RTRESTClient {
 	private RTRESTResponse getResponse(String url, List<NameValuePair> params) throws IOException {
 		HttpPost postRequest = new HttpPost(this.getRestInterfaceBaseURL() + url);
 		UrlEncodedFormEntity postEntity = new UrlEncodedFormEntity(params, Consts.UTF_8);
-        postEntity.setContentType("application/x-www-form-urlencoded");
+		postEntity.setContentType("application/x-www-form-urlencoded");
 		
-        postRequest.setEntity(postEntity);
-        
+		postRequest.setEntity(postEntity);
+
 		HttpResponse httpResponse = this.httpClient.execute(postRequest);
 		
 		String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), Consts.UTF_8);
@@ -163,5 +163,5 @@ public class RTRESTClient {
 	public void setPassword(String password) {
 		this.password = password;
 	}	
-	
+
 }
