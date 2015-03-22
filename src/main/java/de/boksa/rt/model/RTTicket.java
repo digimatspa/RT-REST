@@ -80,7 +80,7 @@ public class RTTicket implements RTCustomFieldObject {
 		this.status = status;
 	}
 
-    public Map<String, RTCustomField> getCustomFields() {
+	public Map<String, RTCustomField> getCustomFields() {
 		return customFields;
 	}
 	public void setCustomFields(Map<String, RTCustomField> customFields) {
