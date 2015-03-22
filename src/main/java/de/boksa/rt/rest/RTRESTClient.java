@@ -22,6 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.Consts;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -29,7 +30,6 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
 
 public class RTRESTClient {
 	
@@ -112,14 +112,14 @@ public class RTRESTClient {
 	
 	private RTRESTResponse getResponse(String url, List<NameValuePair> params) throws IOException {
 		HttpPost postRequest = new HttpPost(this.getRestInterfaceBaseURL() + url);
-		UrlEncodedFormEntity postEntity = new UrlEncodedFormEntity(params, HTTP.UTF_8);
+		UrlEncodedFormEntity postEntity = new UrlEncodedFormEntity(params, Consts.UTF_8);
         postEntity.setContentType("application/x-www-form-urlencoded");
 		
         postRequest.setEntity(postEntity);
         
 		HttpResponse httpResponse = this.httpClient.execute(postRequest);
 		
-		String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), HTTP.UTF_8);
+		String responseBody = IOUtils.toString(httpResponse.getEntity().getContent(), Consts.UTF_8);
 				
 		Matcher matcher = PATTERN_RESPONSE_BODY.matcher(responseBody);
 		
