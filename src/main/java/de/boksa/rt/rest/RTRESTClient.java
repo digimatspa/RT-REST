@@ -30,6 +30,12 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.params.ClientPNames;
+import org.apache.http.protocol.BasicHttpContext;
 
 public class RTRESTClient {
 	
@@ -50,14 +56,17 @@ public class RTRESTClient {
 	}
 	
 	private static final Pattern PATTERN_RESPONSE_BODY = Pattern.compile("^(.*) (\\d+) (.*)\n((.*\n)*+)", Pattern.MULTILINE);
+	private static final String NO_MATCHING_RESULTS = "No matching results";
 		
 	private String restInterfaceBaseURL;
 	private String username;
 	private String password;
 	
-	private HttpClient httpClient;
+	private DefaultHttpClient httpClient;
+	private BasicHttpContext httpContext;
 	
 	public RTRESTClient(String restInterfaceBaseURL, String username, String password) {
+		this.httpContext = new BasicHttpContext();
 		this.setRestInterfaceBaseURL(restInterfaceBaseURL);
 		this.setUsername(username);
 		this.setPassword(password);
@@ -121,8 +130,15 @@ public class RTRESTClient {
 		HttpPost postRequest = new HttpPost(this.getRestInterfaceBaseURL() + url);
 		UrlEncodedFormEntity postEntity = new UrlEncodedFormEntity(params, Consts.UTF_8);
 		postEntity.setContentType("application/x-www-form-urlencoded");
-		
-		postRequest.setEntity(postEntity);
+        	postRequest.setEntity(postEntity);
+        
+		// Explicitly enable handling of authentication automatically
+		this.httpClient.getParams().setParameter(ClientPNames.HANDLE_AUTHENTICATION, true);
+		// Set credentials for the given host:port in advance - the client will use them
+		//  automatically when the server will require authentication
+		this.httpClient.getCredentialsProvider().setCredentials(
+			new AuthScope (postRequest.getURI().getHost(), postRequest.getURI().getPort()), 
+			new UsernamePasswordCredentials(this.getUsername(), this.getPassword()));
 
 		HttpResponse httpResponse = this.httpClient.execute(postRequest);
 		
@@ -130,18 +146,30 @@ public class RTRESTClient {
 				
 		Matcher matcher = PATTERN_RESPONSE_BODY.matcher(responseBody);
 		
+		RTRESTResponse response = new RTRESTResponse();
 		if (matcher.matches()) {
-			RTRESTResponse response = new RTRESTResponse();
+			String body = matcher.group(4).trim();
+			// Check if response is 'No matching results'
+			if (body.startsWith (NO_MATCHING_RESULTS)) {
+				// Signal upper layers of no records are available by setting
+				// response code to -1 and body to actual response from
+				// endpoint
+				response.setStatusCode (-1l);
+				response.setStatusMessage (matcher.group(4).trim());
+				return response;
+			}
 			response.setVersion(matcher.group(1));
 			response.setStatusCode(Long.valueOf(matcher.group(2)));
 			response.setStatusMessage(matcher.group(3));
-			response.setBody(matcher.group(4).trim());
+			response.setBody(body);
 			return response;
 		} else {
-			System.err.println("not matched");
+			// Pattern didn't match - signal upper layers by setting response
+			// code to -1
+			response.setStatusCode (-1l);
+			response.setStatusMessage ("Response body contents - no match");
 		}
-				
-		return new RTRESTResponse();
+		return response;
 	}
 
 	// getter and setter methods...
@@ -163,5 +191,4 @@ public class RTRESTClient {
 	public void setPassword(String password) {
 		this.password = password;
 	}	
-
 }
