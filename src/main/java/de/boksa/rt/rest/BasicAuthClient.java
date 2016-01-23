@@ -55,7 +55,7 @@ public class BasicAuthClient extends RTRESTClient {
 	public RTRESTResponse logout() throws IOException {
 		RTRESTResponse response = super.logout();
 		
-		getRequestExecutor().clearAuth().clearCookies();
+//		getRequestExecutor().clearAuth().clearCookies();
 		this.executor = null;
 
 		return response;

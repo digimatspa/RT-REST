@@ -28,7 +28,7 @@ import de.boksa.rt.rest.RTRESTResponse;
 public class RTAuthClientTest {
 	
 	public RTAuthClient getClient() {
-		return new RTAuthClient("http://rt.easter-eggs.org/demos/stable/REST/1.0/", "john.foo", "john.foo");
+		return new RTAuthClient("http://rt.easter-eggs.org/demos/4.2/REST/1.0/", "john.foo", "john.foo");
 	}
 	
 	@Test

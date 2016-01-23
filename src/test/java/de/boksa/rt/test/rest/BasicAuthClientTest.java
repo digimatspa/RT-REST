@@ -14,7 +14,7 @@ import de.boksa.rt.rest.RTRESTResponse;
 public class BasicAuthClientTest {
 	
 	public BasicAuthClient getClient() {
-		return new BasicAuthClient("http://rt.easter-eggs.org/demos/stable/REST/1.0/", "john.foo", "john.foo");
+		return new BasicAuthClient("http://rt.easter-eggs.org/demos/4.2/REST/1.0/", "john.foo", "john.foo");
 	}
 	
 	@Test

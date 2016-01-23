@@ -43,7 +43,7 @@ public class RESTRTTicketDaoBasicAuthTest {
 
     // for the credentials used see http://requesttracker.wikia.com/wiki/Demo
     LOG.debug("Setting credentials to access the RT demo installation");
-    factoryParameters.put(RESTRTDAOFactory.REST_INTERFACE_BASE_URL, "http://rt.easter-eggs.org/demos/stable/REST/1.0/");
+    factoryParameters.put(RESTRTDAOFactory.REST_INTERFACE_BASE_URL, "http://rt.easter-eggs.org/demos/4.2/REST/1.0/");
     factoryParameters.put(RESTRTDAOFactory.REST_INTERFACE_USERNAME, "john.foo");
     factoryParameters.put(RESTRTDAOFactory.REST_INTERFACE_PASSWORD, "john.foo");
     factoryParameters.put(RESTRTDAOFactory.REST_INTERFACE_AUTH_TYPE, RESTRTDAOFactory.AUTH_TYPE_BASIC);
