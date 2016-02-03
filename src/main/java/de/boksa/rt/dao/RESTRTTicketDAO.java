@@ -17,11 +17,16 @@ package de.boksa.rt.dao;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import de.boksa.rt.rest.response.parser.MultilineTicketSearchResponseParser;
+import de.boksa.rt.rest.response.parser.RTParserModern;
+import de.boksa.rt.rest.response.parser.processor.FieldProcessor;
+import de.boksa.rt.rest.response.parser.processor.FieldProcessorRegistry;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.joda.time.DateTime;
@@ -68,7 +73,7 @@ public class RESTRTTicketDAO implements RTTicketDAO {
 		client.login();
 		RTRESTResponse response = client.getTicket(ticketId);
 		client.logout();
-		RTParser parser = RTParser.getInstance();
+		RTParser parser = RTParserModern.getInstance();
 
 		if (parser != null) {
 			if (response.getStatusCode() == 200l) {
@@ -97,7 +102,7 @@ public class RESTRTTicketDAO implements RTTicketDAO {
 		client.login();
 		RTRESTResponse response = client.getTicket(ticket.getId(), "history?format=l");
 		client.logout();
-		RTParser parser = RTParser.getInstance();
+		RTParser parser = RTParserModern.getInstance();
 
 		if (parser != null) {
 			if (response.getStatusCode() == 200l) {
@@ -122,7 +127,7 @@ public class RESTRTTicketDAO implements RTTicketDAO {
 		client.login();
 		RTRESTResponse response = client.getTicket(ticketId, "history?format=l");
 		client.logout();
-		RTParser parser = RTParser.getInstance();
+		RTParser parser = RTParserModern.getInstance();
 
 		if (parser != null) {
 			if (response.getStatusCode() == 200l) {
@@ -162,7 +167,7 @@ public class RESTRTTicketDAO implements RTTicketDAO {
 		client.login();
 		RTRESTResponse response = client.getUser(username);
 		client.logout();
-		RTParser parser = RTParser.getInstance();
+		RTParser parser = RTParserModern.getInstance();
 
 		if (parser != null) {
 			if (response.getStatusCode() == 200l) {
@@ -183,7 +188,12 @@ public class RESTRTTicketDAO implements RTTicketDAO {
 
 	@Override
 	public List<RTTicket> findByQuery(String query) throws Exception {
-		return this.findByQuery(query, null);
+		return this.findByQuery(query, null, RTRESTClient.TicketSearchResponseFormat.MULTILINE);
+	}
+
+	@Override
+	public List<RTTicket> findByQuery(String query, RTRESTClient.TicketSearchResponseFormat formant) throws Exception {
+		return this.findByQuery(query, null, RTRESTClient.TicketSearchResponseFormat.MULTILINE);
 	}
 
 	@Override
@@ -192,7 +202,7 @@ public class RESTRTTicketDAO implements RTTicketDAO {
 		client.login();
 		RTRESTResponse response = client.searchTickets(query, orderby);
 		client.logout();
-		RTParser parser = RTParser.getInstance();
+		RTParser parser = RTParserModern.getInstance();
 
 		if (parser != null) {
 			if (response.getStatusCode() == 200l) {
@@ -216,6 +226,36 @@ public class RESTRTTicketDAO implements RTTicketDAO {
 	}
 
 	@Override
+	//TODO refactor to return an actual ticket...have to do findById
+	public List<RTTicket> findByQuery(String query, String orderby, RTRESTClient.TicketSearchResponseFormat format) throws Exception {
+		client.login();
+		RTRESTResponse response = client.searchTickets(query, orderby, format);
+		client.logout();
+		RTParser parser= null;
+
+		switch (format) {
+			case IDONLY: parser = null; break;
+			case IDANDSUBJECT: parser = null; break;
+			case MULTILINE: parser = MultilineTicketSearchResponseParser.getInstance(); break;
+		}
+
+
+		if (parser != null) {
+			if (response.getStatusCode() == 200l) {
+				List<Map<String, String>> parsedResponse = parser.parseResponse(response);
+
+				return(processResultData(parsedResponse));
+
+			} else {
+				// No matches were found...just return an empty list instead of bombing out like a dumb
+				return new ArrayList<RTTicket>();
+			}
+		} else {
+			throw new UnsupportedOperationException("Could not create parser for response format.");
+		}
+	}
+
+	@Override
 	public boolean resolveByTicketId(long ticketId) throws Exception {
 		String content= "Status: resolved\n";
 		return(this.updateByTicketId(ticketId, content));
@@ -226,7 +266,7 @@ public class RESTRTTicketDAO implements RTTicketDAO {
 		client.login();
 		RTRESTResponse response = client.updateTicket(Long.toString(ticketId), content);
 		client.logout();
-		RTParser parser = RTParser.getInstance();
+		RTParser parser = RTParserModern.getInstance();
 
 		if (parser != null) {
 			if (response.getStatusCode() == 200l) {
@@ -282,5 +322,34 @@ public class RESTRTTicketDAO implements RTTicketDAO {
 			// failed!!
 			return false;
 		}
+	}
+
+		private static List<RTTicket> processResultData(List<Map<String,String>> resultData) {
+		List<RTTicket> result = new LinkedList<RTTicket>();
+
+		for (Map<String,String> ticketData : resultData) {
+			RTTicket rtTicket= processTicketData(ticketData);
+
+				if(rtTicket.getId() != null)
+					result.add(rtTicket);
+
+		}
+
+		return result;
+	}
+
+	private static RTTicket processTicketData(Map<String,String> ticketData) {
+		RTTicket ticket = new RTTicket();
+
+		FieldProcessor fieldProcessor = null;
+
+		for (Map.Entry<String,String> e : ticketData.entrySet()) {
+			if(e.getKey() != null) {
+				fieldProcessor = FieldProcessorRegistry.getInstance().getTicketFieldProcessor(ticket, e.getKey());
+				fieldProcessor.process(ticket, e.getKey(), e.getValue());
+			}
+		}
+
+		return ticket;
 	}
 }
