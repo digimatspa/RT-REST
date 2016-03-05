@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.boksa.rt.rest.RTRESTClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
@@ -55,7 +56,7 @@ public class RESTRTTicketDAOTest {
 
 		try {
 			LOG.debug("Running the RT Query Builder query and parsing the results");
-			List<RTTicket> result = dao.findByQuery(RTQBQ_ALL_FROM_CUSTOMER_SERVICE);
+			List<RTTicket> result = dao.findByQuery(RTQBQ_ALL_FROM_CUSTOMER_SERVICE, RTRESTClient.TicketSearchResponseFormat.MULTILINE);
 
 			LOG.debug("Iterating over the resulting POJOs");
 			for (RTTicket ticket : result) {
