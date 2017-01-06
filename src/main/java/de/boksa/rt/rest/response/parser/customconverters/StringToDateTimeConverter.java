@@ -1,6 +1,7 @@
 package de.boksa.rt.rest.response.parser.customconverters;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import org.apache.commons.beanutils.Converter;
 import org.joda.time.DateTime;
@@ -26,7 +27,7 @@ public class StringToDateTimeConverter implements Converter {
 		if (value instanceof String && !value.equals("Not set")) {
 			DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
 
-			dateTime = builder.append(null, getParsers()).toFormatter().parseDateTime((String)value);
+			dateTime = builder.append(null, getParsers()).toFormatter().withLocale(Locale.US).parseDateTime((String)value);
 		} else {
 			return null;
 		}
