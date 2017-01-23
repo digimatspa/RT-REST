@@ -1,4 +1,4 @@
-## RT-REST
+# RT-REST
 
 This is a fork of the original repo - mainly to interact
 with our own RT - yet, we (https://github.com/bytemine) wanted to
@@ -6,7 +6,7 @@ make sure, that if we fix or enhance something it is available.
 
 To contact us: code@bytemine.net
 
-# Contents of original README.md
+## Contents of original README.md
 
 To see RT-REST in action simply open your terminal and execute:
 
