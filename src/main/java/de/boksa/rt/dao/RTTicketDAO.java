@@ -15,6 +15,7 @@
  */
 package de.boksa.rt.dao;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -43,5 +44,9 @@ public interface RTTicketDAO {
 	public boolean commentOnTicket(RTTicket ticket, Map<String, String> parameters) throws Exception;
 	public boolean resolveByTicketId(long ticketId) throws Exception;
 	public boolean updateByTicketId(long ticketId, String content) throws Exception;
+	
+	public String findByQueryAsJsonString(String query) throws Exception;
+	public String findByQueryAsJsonString(String query, String orderby) throws Exception;
+	public String findByQueryAsJsonString(String query, String orderby, String fields) throws Exception;
 
 }

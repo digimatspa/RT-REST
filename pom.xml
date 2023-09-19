@@ -21,6 +21,7 @@ Copyright (C) 2012  Benjamin Boksa (http://www.boksa.de/)
   <version>0.0.4</version>
  
   <properties>
+  	<jsonsimple.version>1.1.1</jsonsimple.version>
     <httpclient.version>4.3.5</httpclient.version>
     <commons-io.version>2.4</commons-io.version>
     <commons-beanutils.version>1.9.2</commons-beanutils.version>
@@ -33,6 +34,11 @@ Copyright (C) 2012  Benjamin Boksa (http://www.boksa.de/)
   </properties>
   
   <dependencies>
+  	<dependency>
+	  <groupId>com.googlecode.json-simple</groupId>
+	  <artifactId>json-simple</artifactId>
+	  <version>${jsonsimple.version}</version>
+	</dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,6 +31,8 @@ import de.boksa.rt.rest.response.parser.processor.FieldProcessorRegistry;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.joda.time.DateTime;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import de.boksa.rt.model.RTTicket;
 import de.boksa.rt.model.RTTicketAttachment;
@@ -37,6 +40,7 @@ import de.boksa.rt.model.RTTicketHistory;
 import de.boksa.rt.model.RTTicketUser;
 import de.boksa.rt.rest.RTRESTClient;
 import de.boksa.rt.rest.RTRESTResponse;
+import de.boksa.rt.rest.RTRESTClient.TicketSearchResponseFormat;
 import de.boksa.rt.rest.response.parser.RTParser;
 import de.boksa.rt.rest.response.parser.customconverters.StringToDateTimeConverter;
 
@@ -351,5 +355,58 @@ public class RESTRTTicketDAO implements RTTicketDAO {
 		}
 
 		return ticket;
+	}
+
+	@Override
+	public String findByQueryAsJsonString(String query) throws IOException {
+		return findByQueryAsJsonString(query, null, null);
+	}
+	
+	@Override
+	public String findByQueryAsJsonString(String query, String orderby) throws IOException {
+		return findByQueryAsJsonString(query, orderby, null);
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public String findByQueryAsJsonString(String query, String orderby, String fields) throws IOException {
+		client.login();
+		RTRESTResponse response = client.searchTickets(query, orderby, fields, TicketSearchResponseFormat.MULTILINE);
+		client.logout();
+		
+		String body = response.getBody();
+		
+		Scanner sc = new Scanner(body);
+    	
+    	JSONArray objects = new JSONArray();
+    	JSONObject current = new JSONObject();
+    	
+    	while (sc.hasNext()) {
+    		String line = sc.nextLine();
+    		
+    		if (line.trim().isEmpty())
+    			continue;
+    		
+    		if (line.trim().equals("--")) {
+    			objects.add(current);
+    			current = new JSONObject();
+    		}
+    		
+    		int pos = line.indexOf(':');
+    		if (pos < 1)
+    			continue;
+    		String key = line.substring(0,pos);
+    		String value = line.substring(pos+1);
+    		current.put(key, value);
+    		
+    	}
+    	
+    	if (current.size()>0)
+    		objects.add(current);
+    	
+    	sc.close();
+    	
+    	return objects.toJSONString();
+		
 	}
 }
