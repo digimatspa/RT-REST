@@ -19,8 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -46,7 +44,6 @@ public abstract class RTRESTClient {
 		}
 	}
 
-	protected static final Pattern PATTERN_RESPONSE_BODY = Pattern.compile("^(.*) (\\d+) (.*)\n((.*\n)*)", Pattern.MULTILINE);
 	protected static final String NO_MATCHING_RESULTS = "No matching results";
 
 	private String restInterfaceBaseURL;
@@ -194,31 +191,41 @@ public abstract class RTRESTClient {
 
 		String responseBody = this.getRequestExecutor().execute(request).returnContent().asString();
 
-		Matcher matcher = PATTERN_RESPONSE_BODY.matcher(responseBody);
+		int endLine = responseBody.indexOf('\n');
+		
 
 		RTRESTResponse response = new RTRESTResponse();
-		if (matcher.matches()) {
-			String body = matcher.group(4).trim();
-			// Check if response is 'No matching results'
-			if (body.startsWith(NO_MATCHING_RESULTS)) {
-				// Signal upper layers of no records are available by setting
-				// response code to -1 and body to actual response from
-				// endpoint
-				response.setStatusCode(-1l);
-				response.setStatusMessage(matcher.group(4).trim());
+		if (endLine > 0) {
+			String[] firstLine = responseBody.substring(0, endLine).split(" ", 3);
+			if (firstLine.length >= 3) {
+				
+				String version = firstLine[0];
+				Long statusCode = Long.parseLong(firstLine[1]);
+				String statusMessage = firstLine[2];
+				String body = responseBody.substring(endLine+1);
+				
+				// Check if response is 'No matching results'
+				if (body.startsWith(NO_MATCHING_RESULTS)) {
+					// Signal upper layers of no records are available by setting
+					// response code to -1 and body to actual response from
+					// endpoint
+					response.setStatusCode(-1l);
+					response.setStatusMessage(body);
+					return response;
+				}
+				response.setVersion(version);
+				response.setStatusCode(statusCode);
+				response.setStatusMessage(statusMessage);
+				response.setBody(body);
 				return response;
 			}
-			response.setVersion(matcher.group(1));
-			response.setStatusCode(Long.valueOf(matcher.group(2)));
-			response.setStatusMessage(matcher.group(3));
-			response.setBody(body);
-			return response;
-		} else {
-			// Pattern didn't match - signal upper layers by setting response
-			// code to -1
-			response.setStatusCode(-1l);
-			response.setStatusMessage("Response body contents - no match");
 		}
+			
+		// Pattern didn't match - signal upper layers by setting response
+		// code to -1
+		response.setStatusCode(-1l);
+		response.setStatusMessage("Response body contents - no match");
+			
 		return response;
 	}
 
