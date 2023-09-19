@@ -71,24 +71,36 @@ public abstract class RTRESTClient {
 	}
 
 	public RTRESTResponse searchTickets(String query) throws IOException {
-		return this.searchTickets(query, null, null);
+		return this.searchTickets(query, null, null, null);
 	}
 
 	public RTRESTResponse searchTickets(String query, String orderby) throws IOException {
-		return this.searchTickets(query, orderby, null);
+		return this.searchTickets(query, orderby, null, null);
+	}
+
+	public RTRESTResponse searchTickets(String query, String orderby, String fields) throws IOException {
+		return this.searchTickets(query, orderby, fields, null);
 	}
 
 	public RTRESTResponse searchTickets(String query, TicketSearchResponseFormat format) throws IOException {
-		return this.searchTickets(query, null, format);
+		return this.searchTickets(query, null, null, format);
 	}
 
-	public RTRESTResponse searchTickets(String query, String orderby, TicketSearchResponseFormat format)
+	public RTRESTResponse searchTickets(String query, String orderby, TicketSearchResponseFormat format) throws IOException {
+		return this.searchTickets(query, orderby, null, format);
+	}
+
+	public RTRESTResponse searchTickets(String query, String orderby, String fields, TicketSearchResponseFormat format)
 			throws IOException {
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
 		params.add(new BasicNameValuePair("query", query));
 
 		if (orderby != null) {
 			params.add(new BasicNameValuePair("orderby", orderby));
+		}
+
+		if (fields != null) {
+			params.add(new BasicNameValuePair("fields", fields));
 		}
 
 		if (format != null) {
@@ -99,7 +111,7 @@ public abstract class RTRESTClient {
 	}
 
 	public RTRESTResponse updateTicket(String ticketId, String content) throws IOException {
-		List<NameValuePair> params= new ArrayList();
+		List<NameValuePair> params = new ArrayList<>();
 		params.add(new BasicNameValuePair("content", content));
 
 		return this.getResponse("ticket/"+ ticketId +"/edit", params);
