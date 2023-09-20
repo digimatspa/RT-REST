@@ -45,8 +45,8 @@ public interface RTTicketDAO {
 	public boolean resolveByTicketId(long ticketId) throws Exception;
 	public boolean updateByTicketId(long ticketId, String content) throws Exception;
 	
-	public String findByQueryAsJsonString(String query) throws Exception;
-	public String findByQueryAsJsonString(String query, String orderby) throws Exception;
-	public String findByQueryAsJsonString(String query, String orderby, String fields) throws Exception;
+	public String findByQueryAsJsonString(String query) throws IOException;
+	public String findByQueryAsJsonString(String query, String orderby) throws IOException;
+	public String findByQueryAsJsonString(String query, String orderby, String fields) throws IOException;
 
 }
